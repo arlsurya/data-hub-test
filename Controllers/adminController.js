@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
-const bcrypt = require('bcrypt')
+// const bcrypt = require('bcrypt')
 const saltRound = 10;
 const jwt = require('jsonwebtoken')
 const adminModel = require('../Models/adminModel')
@@ -55,15 +55,15 @@ module.exports = {
             // admin found with the provided email section
 
             // compare provided password and stored password
-            comparePassword = await bcrypt.compare(password, admin.password)
+            // comparePassword = await bcrypt.compare(password, admin.password)
 
-            if (!comparePassword) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    Code: 0,
-                    message: "email or password is invalid !"
-                })
-            }
+            // if (!comparePassword) {
+            //     return res.status(401).json({
+            //         statusCode: 401,
+            //         Code: 0,
+            //         message: "email or password is invalid !"
+            //     })
+            // }
 
             let payload = {
                 id: admin._id
@@ -143,9 +143,9 @@ module.exports = {
                 })
             }
 
-            let hashedPassword = await bcrypt.hash(req.body.password, saltRound)
+            // let hashedPassword = await bcrypt.hash(req.body.password, saltRound)
 
-            req.body.password = hashedPassword;
+            // req.body.password = hashedPassword;
 
             let admin = new adminModel(req.body)
             admin = await admin.save()
@@ -216,15 +216,15 @@ module.exports = {
 
             // compare entered old password with actually old password
 
-            let passwordCheck = await bcrypt.compare(oldPassword, admin.password)
+            // let passwordCheck = await bcrypt.compare(oldPassword, admin.password)
 
-            // if password not match 
-            if (!passwordCheck) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    message: "your old password is invalid"
-                })
-            }
+            // // if password not match 
+            // if (!passwordCheck) {
+            //     return res.status(401).json({
+            //         statusCode: 401,
+            //         message: "your old password is invalid"
+            //     })
+            // }
 
             // check new password and re-new password match
             if (newPassword != reNewPassword) {
@@ -241,10 +241,10 @@ module.exports = {
                 })
             }
 
-            let hashedNewPassword = await bcrypt.hash(newPassword, saltRound)
-            console.log(hashedNewPassword)
+            // let hashedNewPassword = await bcrypt.hash(newPassword, saltRound)
+            // console.log(hashedNewPassword)
 
-            let updatePassword = await adminModel.findOneAndUpdate({ _id: adminId }, { password: hashedNewPassword })
+            let updatePassword = await adminModel.findOneAndUpdate({ _id: adminId }, { password: newPassword })
 
             if (!updatePassword) {
                 return res.status(401).json({
