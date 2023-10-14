@@ -8,27 +8,30 @@ const apiRoutes = require('./Routes/api');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const fileUpload = require('express-fileupload');
-const fs = require('fs')
-const path = require('path')
-
+const fs = require('fs');
+const path = require('path');
+const moment = require('moment-timezone'); // Import the moment-timezone library
 
 app.use(cors());
-
 app.use(fileUpload());
 DB();
-
 app.disable("x-powered-by");
-
 app.use(express.json());
 
-// Set up Morgan for request logging
-morgan.token('remote-addr', (req) => {
-    return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+// Set the Nepal time zone
+const nepalTimeZone = 'Asia/Kathmandu';
+
+// Create a custom token for the formatted date
+morgan.token('nepal-time', (req, res, tz) => {
+    return moment().tz(tz).format('YYYY-MM-DD HH:mm:ss');
 });
 
+// Define a custom format that includes the Nepal time zone-formatted date
+const customFormat = ':remote-addr - [:nepal-time[' + nepalTimeZone + ']] ":method :url" :status :response-time ms ":user-agent"';
+
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
- 
-app.use(morgan(':remote-addr :method :url :status :response-time ms', {
+
+app.use(morgan(customFormat, {
     stream: accessLogStream
 }));
 
@@ -36,8 +39,6 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
 });
-
-// app.use(limiter);
 
 app.use('/', indexRoutes);
 app.use('/api', apiRoutes);
